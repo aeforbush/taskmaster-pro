@@ -98,9 +98,9 @@ $('.card .list-group').sortable( {
     console.log("out", event.target);
   },
   update: function(event) {
-    // array to store the task date in
+  // array to store the task date in
     var tempArr =[];
-    // loop over current set of children in sortable list
+  // loop over current set of children in sortable list
     $(this).children().each(function() {
       var text = $(this)
       .find('p')
@@ -112,7 +112,7 @@ $('.card .list-group').sortable( {
       .text()
       .trim();
 
-    // add task data to the temp array as an object
+  // add task data to the temp array as an object
         tempArr.push({
           text: text,
           date: date
@@ -126,7 +126,23 @@ $('.card .list-group').sortable( {
   // update array on task object and save
     tasks[arrName]= tempArr;
     saveTasks();
-    console.log(tempArr);
+   // console.log(tempArr);
+  }
+});
+
+// ability to delete task by task
+$('#trash').droppable({
+  accept: ".card .list-group-item",
+  tolerance: "touch",
+  drop: function(event, ui) {
+    ui.draggable.remove();
+    console.log("drop");
+  },
+  over: function(event, ui) {
+   // console.log("over");
+  },
+  out: function(event, ui) {
+   // console.log("out");
   }
 });
 
