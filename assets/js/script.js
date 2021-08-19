@@ -49,6 +49,7 @@ var saveTasks = function() {
 
 // audit task
 var auditTask = function(taskEl) {
+  // console.log(taskEl);
   // get date from task element
   var date = $(taskEl).find('span').text().trim();
   // to ensure element is getting to the function
@@ -281,6 +282,12 @@ $("#remove-tasks").on("click", function() {
   }
   saveTasks();
 });
+
+setInterval(function() {
+  $('.card .list-group-item').each(function(index, el) {
+    auditTask(el);
+  });
+}, (1000*60)*30);
 
 // load tasks for the first time
 loadTasks();
