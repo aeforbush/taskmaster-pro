@@ -1,5 +1,29 @@
 var tasks = {};
 
+// audit task
+var auditTask = function(taskEl) {
+  // get date from task element
+  var date = $(taskEl).find('span').text().trim();
+  // to ensure element is getting to the function
+  //console.log(date);
+
+  // convert to moment object at 5:00pm
+  var time = moment(date, 'L').set('hour', 17);
+  // this should print out an object for the value of the date variable
+  //console.log(time);
+
+  // remove any old classes from element
+  $(taskEl).removeClass('list-group-item-warning list-group-item-danger');
+
+  // apply new class if task is near/over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass('list-group-item-danger');
+  }
+  else if (Math.abs(moment().diff(time, 'days')) <=2) {
+    $(taskEl).addClass('list-group-item-warning');
+  }
+};
+
 var createTask = function(taskText, taskDate, taskList) {
   // create elements that make up a task item
   var taskLi = $("<li>").addClass("list-group-item");
@@ -13,6 +37,8 @@ var createTask = function(taskText, taskDate, taskList) {
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
 
+  // check due date
+  auditTask(taskLi);
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
@@ -146,23 +172,34 @@ $("#task-form-modal .btn-primary").click(function() {
     saveTasks();
   }
 });
+
 // task text was clicked
-$(".list-group").on("click", "p", function() {
+$(".list-group").on("click", "span", function() {
   // get current text
   var date = $(this)
   .text()
   .trim();
+  
+  // create new input element
+  var dateInput = $('<input>').attr('type', 'text').addClass('form-control').val(date);
 
-  // raplace p element with a new textarea
-  var textInput = $("<textarea>").addClass("form-control").val(text);
-  $(this).replaceWith(textInput);
+  $(this).replaceWith(dateInput);
 
-  // auto focus a new element
-  textInput.trigger("focus");
+  // enable jquery ui datepicker
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function() {
+      // when calendar is closed, force a "change" event on the 'dateInput'
+      $(this).trigger("change");
+    }
+  });
+
+  // automatically bring up the calendar
+  dateInput.trigger("focus");
 });
 
 // editable field was un-focused
-$(".list-group").on("blue", "textarea", function() {
+$(".list-group").on("change", "input[type='text]", function() {
   // get current value of textarea
   var text = $(this).val();
 
@@ -193,7 +230,7 @@ $(".list-group").on("blue", "textarea", function() {
   dateInput.trigger('focus');
 });
 
-// value of due date was changed
+// value of due date change handler
 $(".list-group").on("change", "input[type='text']", function() {
   var date = $(this).val();
 
@@ -215,6 +252,14 @@ $(".list-group").on("change", "input[type='text']", function() {
     .addClass("badge badge-primary badge-pill")
     .text(date);
     $(this).replaceWith(taskSpan);
+
+  // Pass task's <li> element into auditTask() to check new due date
+  auditTask($(taskSpan).closest('.list-group-item'));
+});
+
+// added datepicker
+$('#modalDueDate').datepicker({
+  minDate: 1
 });
 
 // remove all tasks
